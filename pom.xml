@@ -16,6 +16,8 @@
 	<description>Online courses</description>
 	<properties>
 		<java.version>1.8</java.version>
+		<!-- One Liquibase version for the Maven plugin and (from P2) the app; must be >= 4.22 (v9 checksums) -->
+		<liquibase.version>4.31.1</liquibase.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -188,6 +190,25 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<!-- Run changelogs without the app: migration/liquibase.sh <env> <goal> -->
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<version>${liquibase.version}</version>
+				<configuration>
+					<!-- Same search path / changelog path as Spring Boot, so DATABASECHANGELOG.FILENAME matches.
+					     target/liquibase only holds the temporary connection properties written by migration/liquibase.sh -->
+					<searchPath>${project.basedir}/src/main/resources,${project.build.directory}/liquibase</searchPath>
+					<changeLogFile>db/changelog/db.changelog-master.yaml</changeLogFile>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>com.mysql</groupId>
+						<artifactId>mysql-connector-j</artifactId>
+						<version>8.4.0</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
